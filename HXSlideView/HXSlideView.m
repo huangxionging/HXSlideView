@@ -8,6 +8,28 @@
 
 #import "HXSlideView.h"
 
+@interface HXSlideView ()
+/**
+ *  背景视图
+ */
+@property (nonatomic, strong) UIView *backgroundView;
+
+/**
+ *  选中部分视图
+ */
+@property (nonatomic, strong) UIView *selectView;
+
+/**
+ *  未选中部分
+ */
+@property (nonatomic, strong) UIView *unSelectView;
+
+/**
+ *  指示视图
+ */
+@property (nonatomic, strong) UIView *indicatorView;
+
+@end
 
 
 @implementation HXSlideView
@@ -19,7 +41,7 @@
     NSInteger _maxValue;
 }
 
-- (instancetype)initWithFrame:(CGRect)frame {
+- (instancetype)initWithFrame:(CGRect)frame andSlideType:(HXSlideViewType)slideType{
     self = [super initWithFrame:frame];
     
     if (self) {
@@ -50,15 +72,22 @@
         [_backgroundView addSubview: _unSelectView];
         
         
-        _indicatorView = [[UIView alloc] initWithFrame: CGRectMake(0, _backgroundView.top, self.height, self.height)];
-        _indicatorView.center = CGPointMake(0, _backgroundView.center.y);
-        _indicatorView.layer.masksToBounds = YES;
-        _indicatorView.layer.cornerRadius = _indicatorView.height / 2;
-        _indicatorView.backgroundColor = [UIColor blueColor];
+        if (slideType == kHXSlideViewTypeDefault || slideType == kHXSlideViewTypeUnableDrag) {
+            _indicatorView = [[UIView alloc] initWithFrame: CGRectMake(0, _backgroundView.top, self.height, self.height)];
+            _indicatorView.center = CGPointMake(0, _backgroundView.center.y);
+            _indicatorView.layer.masksToBounds = YES;
+            _indicatorView.layer.cornerRadius = _indicatorView.height / 2;
+            _indicatorView.backgroundColor = [UIColor blueColor];
+            
+            [self addSubview: _indicatorView];
+            
+            if (slideType == kHXSlideViewTypeDefault) {
+                [_indicatorView addGestureRecognizer: [[UIPanGestureRecognizer alloc] initWithTarget:self action: @selector(valueChanged:)]];
+            }
+        }
         
-        [_indicatorView addGestureRecognizer: [[UIPanGestureRecognizer alloc] initWithTarget:self action: @selector(valueChanged:)]];
-    
-        [self addSubview: _indicatorView];
+        
+        
         
     }
     
@@ -81,8 +110,8 @@
             _unSelectView.left = pointX;
             
             // 回传值
-            if (self.delegate && [self.delegate respondsToSelector: @selector(slideView:slideValue:)]) {
-                [self.delegate slideView: self slideValue: (NSInteger)(locationPoint.x / _perPointValue)];
+            if (self.delegate && [self.delegate respondsToSelector: @selector(slideView:withProgressValue:)]) {
+                [self.delegate slideView: self withProgressValue: (NSInteger)(locationPoint.x / _perPointValue)];
             }
         }
     }
@@ -102,7 +131,7 @@
     _indicatorView.backgroundColor = color;
 }
 
-- (void)setIndicatorValue:(NSInteger)value {
+- (void)setProgressValue:(NSInteger)value {
     
     // 设置初始值
     CGFloat pointX = value * _perPointValue;

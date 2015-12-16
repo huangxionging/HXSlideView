@@ -24,7 +24,8 @@
     
     self.view.backgroundColor = [UIColor whiteColor];
     
-    _slideView = [[HXSlideView alloc] initWithFrame: CGRectMake(60, 40, self.view.width - 120, 30)];
+    _slideView = [[HXSlideView alloc] initWithFrame: CGRectMake(60, 40, self.view.width - 120, 40) andSlideType: kHXSlideViewTypeDefault];
+
     _slideView.delegate = self;
     
     [_slideView setSelectViewColor: UIColorFromRGB(0x2DB0FB)];
@@ -32,6 +33,8 @@
     [_slideView setIndicatorColor: UIColorFromRGB(0x2DB0FB)];
     
     [_slideView setUnSelectViewColor: UIColorFromRGB(0xF1F1F1)];
+    
+    [_slideView setProgressValue: 50];
     
     [self.view addSubview: _slideView];
 }
